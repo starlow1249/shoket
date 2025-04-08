@@ -6,7 +6,8 @@
   <style>
     body { font-family: Arial, sans-serif; direction: rtl; text-align: center; margin: 30px; }
     input, button { padding: 10px; margin: 10px; font-size: 16px; }
-    #results a { display: block; margin: 10px; font-weight: bold; }
+    iframe { width: 90%; height: 500px; margin-top: 20px; border: 1px solid #ccc; }
+    .doc-title { font-weight: bold; margin-top: 20px; }
   </style>
 </head>
 <body>
@@ -49,11 +50,31 @@
           matchingDocs.forEach(row => {
             const docName = row[2];
             const docLink = row[3];
-            const link = document.createElement('a');
-            link.href = docLink;
-            link.textContent = docName;
-            link.target = '_blank';
-            resultsDiv.appendChild(link);
+
+            // המרה לקישור הטמעה אם צריך
+            let embedLink = docLink;
+
+            // Google Docs
+            if (docLink.includes('docs.google.com/document/d/')) {
+              const docId = docLink.split('/d/')[1].split('/')[0];
+              embedLink = `https://docs.google.com/document/d/${docId}/preview`;
+            }
+
+            // Google Slides
+            if (docLink.includes('docs.google.com/presentation/d/')) {
+              const docId = docLink.split('/d/')[1].split('/')[0];
+              embedLink = `https://docs.google.com/presentation/d/${docId}/embed?start=false&loop=false&delayms=3000`;
+            }
+
+            const title = document.createElement('div');
+            title.className = 'doc-title';
+            title.textContent = docName;
+
+            const iframe = document.createElement('iframe');
+            iframe.src = embedLink;
+
+            resultsDiv.appendChild(title);
+            resultsDiv.appendChild(iframe);
           });
         }
       } catch (error) {
